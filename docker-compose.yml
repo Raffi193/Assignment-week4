@@ -1,0 +1,45 @@
+services:
+  # ── Service 1: PostgreSQL Database ──────────────────────────────
+  postgres:
+    image: postgres:16-alpine        # Image resmi PostgreSQL versi 16
+    container_name: week4_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}       # Dibaca dari file .env
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"                  # Expose ke host (untuk akses via DBeaver/pgAdmin)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Data persisten meski container restart
+    networks:
+      - app_network
+    healthcheck:                     # Cek apakah Postgres sudah siap menerima koneksi
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Service 2: Backend API ───────────────────────────────────────
+  api:
+    build: .                         # Build dari Dockerfile di direktori ini
+    container_name: week4_api
+    restart: unless-stopped
+    env_file:
+      - .env                         # Inject semua variabel dari .env ke container
+    ports:
+      - "${PORT}:3000"               # Map port host → container
+    depends_on:
+      postgres:
+        condition: service_healthy   # Tunggu hingga Postgres benar-benar siap
+    networks:
+      - app_network
+
+# ── Volumes ─────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+
+# ── Networks ─────────────────────────────────────────────────────
+networks:
+  app_network:
+    driver: bridge                   # Kedua service bisa saling berkomunikasi
