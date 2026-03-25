@@ -9,7 +9,7 @@ const pool = new Pool({
   database: process.env.DB_NAME,
 });
 
-// Fungsi untuk membuat tabel products jika belum ada (auto-migrate sederhana)
+// Fungsi untuk membuat tabel products jika belum ada / auto-migrate
 const initializeDatabase = async () => {
   const createTableQuery = `
     CREATE TABLE IF NOT EXISTS products (

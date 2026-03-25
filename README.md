@@ -161,8 +161,8 @@ Content-Type: application/json
 ## Screenshot
 
 ### Postman — Response 201 Created
+![alt text](image-2.png)
 ![alt text](image.png)
-
 
 ### Data di Tabel Database
 ![alt text](image-1.png)
